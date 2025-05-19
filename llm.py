@@ -39,8 +39,7 @@ The information is:\n"""
     
     
     results = list(search(personInfo['fullName'], num_results=10, unique=True, advanced=True))
-    messages = [{"role": "system", "content": instructionsString}]
-    print('instructions:', instructionsString, end='\n\n')
+    
     for result in results:
         questionString = f"""Is this an account owned by the person? \n\
 title: {result.title}\n\
@@ -48,18 +47,13 @@ description: {result.description}\n\
 url: {result.url}\n\
 Respond with only Yes or No."""
 
-        messages.append({"role": "user", "content": questionString})
         # response = ""
-        # response = client.responses.create(
-        #     model="gpt-4o",
-        #     instructions=instructionsString,
-        #     input=questionString,
-        # )
-        response = client.chat.completions.create(
+        response = client.responses.create(
             model="gpt-4o",
-            messages=messages
+            instructions=instructionsString,
+            input=questionString,
         )
+        print('instructions:', instructionsString, end='\n\n')
         print('question:', questionString, end='\n\n')
-        print('response:', response.choices[0].message.content, end='\n\n')
-        messages.append({"role": "assistant", "content": response.choices[0].message.content})
+        print('response:', response.output_text, end='\n\n')
     return {}
