@@ -6,9 +6,9 @@ import time
 import os
 from dotenv import load_dotenv
 import re
-import crawl
 from flask import Flask, request, json
 import llm
+from log_util import log, reset_log
 
 app = Flask(__name__)
 CORS(app)
@@ -21,20 +21,20 @@ def start():
     # markdown = crawl.convert_to_markdown(html)
     # print(markdown)
     data = json.loads(request.data)
-    print('start', data)
+    # print('start', data)
     if 'url' not in data or data['url'] == '':
         results = llm.establishProfile(data['fullName'])
         return {'results': results}
     else:
-        llm.findAccounts(data)
-        return {}
+        return llm.findContent(data)
     
-@app.route("/find_accounts", methods=["POST"])
-def findAccountsFromProfile():
+@app.route("/find_content", methods=["POST"])
+def findContentFromProfile():
     data = json.loads(request.data)
-    print('findAccountsFromProfile', data)
+    # print('findContentFromProfile', data)
 
-    return llm.findAccounts(data)
+    return llm.findContent(data)
 
 if __name__ == "__main__":
     app.run(debug=True, host='localhost', port=5001)
+    reset_log()
