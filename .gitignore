@@ -5,3 +5,4 @@ env/
 *.txt
 .DS_Store
 test.py
+*.log
