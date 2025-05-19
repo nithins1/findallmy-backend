@@ -13,25 +13,26 @@ from log_util import log, reset_log
 app = Flask(__name__)
 CORS(app)
 
+# Initial contact with frontend
 @app.route("/start", methods=["POST"])
 def start():
-    # url = "https://www.linkedin.com/in/caseywinters/"
-    # page = crawl.linkedin_login()
-    # html = crawl.scrape_page(page, url)
-    # markdown = crawl.convert_to_markdown(html)
-    # print(markdown)
     data = json.loads(request.data)
-    # print('start', data)
+    
+    # We consider a profile to be necessary. A name alone is insufficient.
     if 'url' not in data or data['url'] == '':
+        # If the user doesn't provide a profle URL, we will search their name on Google 
+        # and ask them to identify which one is theirs.
         results = llm.establishProfile(data['fullName'])
         return {'results': results}
     else:
+        # Otherwise the provided data is enough to start searching.
         return llm.findContent(data)
-    
+
+# Given profile URL and name, return all contenet URLs for the person
 @app.route("/find_content", methods=["POST"])
 def findContentFromProfile():
+    # User-provided info now includes name and profile URL
     data = json.loads(request.data)
-    # print('findContentFromProfile', data)
 
     return llm.findContent(data)
 

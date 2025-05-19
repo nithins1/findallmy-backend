@@ -23,12 +23,11 @@ def establishProfile(fullName):
 
 def getDescriptionFromProfileUrl(url):
     results = list(search(url, num_results=1, advanced=True))
-    # print(url)
-    # print('getDescriptionFromProfileUrl', results)
+
     return results[0].description
 
+# Find all content created by a person
 def findContent(personInfo):
-    # print('findContent', personInfo)
     if 'url' in personInfo and personInfo['url'] != '':
         personInfo['profileDescription'] = getDescriptionFromProfileUrl(personInfo['url'])
 
@@ -45,8 +44,6 @@ The information about the person is:\n"""
     
     
     results = list(search(personInfo['fullName'], num_results=NUM_RESULTS_FOR_FINDING_ACCOUNTS, unique=True, advanced=True))
-    print('results', results)
-    print('results length', len(results))
     log(f'instructions: {instructionsString}')
     userAccounts = []
     for result in results:
@@ -56,7 +53,6 @@ description: {result.description}\n\
 url: {result.url}\n\
 Respond with only Yes or No."""
 
-        # response = ""
         response = client.responses.create(
             model="gpt-4o",
             instructions=instructionsString,
@@ -68,15 +64,14 @@ Respond with only Yes or No."""
         if 'yes' in response.output_text.lower():
             userAccounts.append(result)
     
-    print('userAccounts:', userAccounts)
-    print('userAccounts length:', len(userAccounts))
-    contentList = {}
+    contentList = {} # Maps site url to list of content urls
     for account in userAccounts:
         parsed_url = urlparse(account.url)
-        print('parsed_url:', parsed_url.netloc)
+        # print('parsed_url:', parsed_url.netloc)
         contentList[parsed_url.netloc] = searchSite(account, personInfo)
     return contentList
 
+# Find content created by the person on a given site
 def searchSite(account, personInfo):
     instructionsString = f"""You are given some information about a person: their \
 name and profile description, and possibly some more. You will be given a numbered list \
@@ -91,7 +86,6 @@ The information about the person is:\n"""
             instructionsString += f"{key}: {value}\n"
             
     log(f'instructions: {instructionsString}')
-    # print(account)
     parsed_url = urlparse(account.url)
     # improvement would be to search with person's alias instead of full name if appropriate
     results = list(search(f'site:{parsed_url.netloc} {personInfo['fullName']}', num_results=NUM_RESULTS_FOR_CONTENT_SEARCH, advanced=True))
